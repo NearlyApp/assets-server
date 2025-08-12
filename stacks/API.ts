@@ -1,4 +1,4 @@
-import { config } from "../config";
+import { config, ALLOWED_CONTENT_TYPES } from "../config";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as route53targets from "aws-cdk-lib/aws-route53-targets";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
@@ -38,6 +38,11 @@ export class AssetsApi extends Stack {
       endpointConfiguration: {
         types: [EndpointType.REGIONAL],
       },
+      binaryMediaTypes: [
+        ...ALLOWED_CONTENT_TYPES,
+        // Add wildcard to handle any Accept header for binary content
+        "*/*",
+      ],
     });
 
     new route53.ARecord(this, "AliasRecord", {

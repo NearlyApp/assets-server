@@ -52,6 +52,21 @@ export class Endpoints extends Construct {
       method: "GET",
       lambda: getHandler,
     });
+
+    const deleteHandler = this.createLambda({
+      id: "DeleteHandler",
+      entry: "../lambdas/delete",
+      envs: {
+        BUCKET_NAME: props.bucket.bucketName
+      }
+    })
+    props.bucket.grantWrite(deleteHandler)
+
+    this.addIntegration({
+      resource: idPath,
+      method: "DELETE",
+      lambda: deleteHandler
+    })
   }
 
   createLambda(options: {

@@ -4,21 +4,9 @@ import {
   type APIGatewayProxyCallback,
 } from "aws-lambda";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { ALLOWED_CONTENT_TYPES } from "../config";
 
 const s3 = new S3Client();
-
-// Allowed content types for images and videos
-const ALLOWED_CONTENT_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "video/mp4",
-  "video/webm",
-  "video/quicktime",
-  "video/avi",
-] as const;
 
 export const handler = async (
   event: APIGatewayEvent,
@@ -33,6 +21,9 @@ export const handler = async (
     if (!contentType) {
       return callback(null, {
         statusCode: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ error: "Content-Type header is required" }),
       });
     }
@@ -41,6 +32,9 @@ export const handler = async (
     if (!ALLOWED_CONTENT_TYPES.includes(contentType as any)) {
       return callback(null, {
         statusCode: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           error: "Invalid content type. Only images and videos are allowed",
         }),
@@ -51,6 +45,9 @@ export const handler = async (
     if (!event.body) {
       return callback(null, {
         statusCode: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ error: "Request body is required" }),
       });
     }
@@ -91,6 +88,9 @@ export const handler = async (
 
     return callback(null, {
       statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ error: "Internal server error" }),
     });
   }

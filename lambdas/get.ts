@@ -29,18 +29,24 @@ export const handler = async (
     if (!response.Body) {
       return callback(null, {
         statusCode: 404,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ error: "Asset not found" }),
       });
     }
 
     // Convert stream to buffer using the correct AWS SDK v3 method
     const bytes = await response.Body.transformToByteArray();
+    const contentType = response.ContentType || "application/octet-stream";
+
+    // Always return binary data as base64 for media files
     const body = Buffer.from(bytes).toString("base64");
 
     return callback(null, {
       statusCode: 200,
       headers: {
-        "Content-Type": response.ContentType || "application/octet-stream",
+        "Content-Type": contentType,
         "Cache-Control": "public, max-age=3600",
         "Content-Length": bytes.length.toString(),
       },
@@ -53,6 +59,9 @@ export const handler = async (
     if (error instanceof ZodError) {
       return callback(null, {
         statusCode: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ error: "Invalid ID parameter" }),
       });
     }
@@ -62,6 +71,9 @@ export const handler = async (
       if (error.name === "NoSuchKey" || error.name === "NotFound") {
         return callback(null, {
           statusCode: 404,
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ error: "Asset not found" }),
         });
       }
@@ -70,6 +82,9 @@ export const handler = async (
     // Generic server error
     return callback(null, {
       statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ error: "Internal server error" }),
     });
   }
