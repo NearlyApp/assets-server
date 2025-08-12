@@ -99,6 +99,9 @@ export class Endpoints extends Construct {
     lambda: Function;
     opts?: MethodOptions;
   }) {
-    resource.addMethod(method, new LambdaIntegration(lambda), opts);
+    resource.addMethod(method, new LambdaIntegration(lambda), {
+      ...opts,
+      apiKeyRequired: true
+    });
   }
 }

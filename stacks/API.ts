@@ -44,6 +44,12 @@ export class AssetsApi extends Stack {
         "*/*",
       ],
     });
+    const apiKey = api.addApiKey("ApiKey")
+    const plan = api.addUsagePlan("UsagePlan")
+    plan.addApiKey(apiKey)
+    plan.addApiStage({
+      stage: api.deploymentStage
+    })
 
     new route53.ARecord(this, "AliasRecord", {
       zone: hostedZone,
