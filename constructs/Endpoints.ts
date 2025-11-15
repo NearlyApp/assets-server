@@ -36,6 +36,24 @@ export class Endpoints extends Construct {
       lambda: uploadHandler,
     });
 
+    // Add presigned upload endpoint
+    const presigned = upload.addResource("presigned");
+
+    const presignedHandler = this.createLambda({
+      id: "PresignedHandler",
+      entry: "../lambdas/presigned",
+      envs: {
+        BUCKET_NAME: props.bucket.bucketName,
+      },
+    });
+    props.bucket.grantWrite(presignedHandler);
+
+    this.addIntegration({
+      resource: presigned,
+      method: "POST",
+      lambda: presignedHandler,
+    });
+
     const idPath = props.api.root.addResource("{id}");
 
     const getHandler = this.createLambda({
@@ -57,16 +75,16 @@ export class Endpoints extends Construct {
       id: "DeleteHandler",
       entry: "../lambdas/delete",
       envs: {
-        BUCKET_NAME: props.bucket.bucketName
-      }
-    })
-    props.bucket.grantWrite(deleteHandler)
+        BUCKET_NAME: props.bucket.bucketName,
+      },
+    });
+    props.bucket.grantWrite(deleteHandler);
 
     this.addIntegration({
       resource: idPath,
       method: "DELETE",
-      lambda: deleteHandler
-    })
+      lambda: deleteHandler,
+    });
   }
 
   createLambda(options: {
@@ -101,7 +119,7 @@ export class Endpoints extends Construct {
   }) {
     resource.addMethod(method, new LambdaIntegration(lambda), {
       ...opts,
-      apiKeyRequired: true
+      apiKeyRequired: true,
     });
   }
 }
